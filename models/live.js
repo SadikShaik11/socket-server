@@ -7,10 +7,10 @@ const liveSchema = new Schema({
     },
     auth: { 
         type: String,
-        unique: true,
     },
     docid: { 
-        type: Number
+        type: Number,
+        unique: true,
     },
     specialization: { 
         type: Array
