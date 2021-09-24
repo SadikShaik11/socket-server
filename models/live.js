@@ -21,6 +21,9 @@ const liveSchema = new Schema({
     rating: { 
         type: Number
     },
+    name: { 
+        type: String
+    },
 }, { versionKey: false, timestamps: false, collection: 'live-doctors' })
 
 const Live = mongoose.model("Live", liveSchema)
