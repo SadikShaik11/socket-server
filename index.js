@@ -37,7 +37,7 @@ io.on("connection", (socket) => {
   // console.log("user connected!");
   try {
     var decoded = jwt_decode(socket.handshake.query.AuthData)
-     // console.log(decoded);
+    // console.log(decoded);
     Live.create({
       auth: decoded.sub,
       role: decoded.role,
@@ -56,13 +56,8 @@ io.on("connection", (socket) => {
   socket.on('disconnect', () => {
     //console.log('user disconnected');
     try {
-      Live.findOneAndDelete(decoded.sub, (err, docs) => { 
-        if (err) {
-          console.log('Live delete error: ' + err);
-        } else {
-          console.log("Doctor is Offline")
-        }
-      })
+      Live.findOneAndDelete(decoded.sub) 
+      console.log("Doctor is Offline")
     } catch (e) {
       console.log(e)
     }
