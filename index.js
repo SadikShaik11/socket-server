@@ -29,44 +29,45 @@ app.get('/getlivedoctors', async (req, res) => {
   })
 });
 
-
 io.on("connection", (socket) => {
   socket.on("connect", () => {
     socket.sendBuffer = [];
   });
   
   // console.log("user connected!");
-  
-  const decoded = jwt_decode(socket.handshake.query.AuthData)
-  // console.log(decoded);
-  Live.create({
-    auth: decoded.sub,
-    role: decoded.role,
-    docid: decoded.docid,
-    specialization: decoded.specialization,
-    charge: decoded.charge,
-    rating: decoded.rating,
-    name: decoded.name,
-  }, (err, docs) => {
-    if (err) {
-      console.log('Live create error: ' + err);
-    } else {
-      console.log("Doctor is Live");
-    }
-  });
+  try {
+    var decoded = jwt_decode(socket.handshake.query.AuthData)
+     // console.log(decoded);
+    Live.create({
+      auth: decoded.sub,
+      role: decoded.role,
+      docid: decoded.docid,
+      specialization: decoded.specialization,
+      charge: decoded.charge,
+      rating: decoded.rating,
+      name: decoded.name
+    });
+    console.log("Doctor is Live")
+  } catch (e) {
+    console.log(e)
+  }
 
 
   socket.on('disconnect', () => {
     //console.log('user disconnected');
-    Live.findOneAndDelete(decoded.sub, (err, docs) => { 
-      if (err) {
-        console.log('Live delete error: ' + err);
-      } else {
-        console.log("Doctor is Offline")
-      }
-    })
+    try {
+      Live.findOneAndDelete(decoded.sub, (err, docs) => { 
+        if (err) {
+          console.log('Live delete error: ' + err);
+        } else {
+          console.log("Doctor is Offline")
+        }
+      })
+    } catch (e) {
+      console.log(e)
+    }
+    
   });
-
 });
 
 httpServer.listen(process.env.PORT, () => {
