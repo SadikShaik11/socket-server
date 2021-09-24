@@ -17,5 +17,9 @@
     "mongoose": "^6.0.7",
     "nodemon": "^2.0.12",
     "socket.io": "^4.2.0"
+  },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.3",
+    "utf-8-validate": "^5.0.5"
   }
 }

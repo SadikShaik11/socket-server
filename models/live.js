@@ -6,9 +6,19 @@ const liveSchema = new Schema({
         type: String
     },
     auth: { 
-        type: String
+        type: String,
+        unique: true,
     },
     docid: { 
+        type: Number
+    },
+    specialization: { 
+        type: String
+    },
+    charge: { 
+        type: String
+    },
+    rating: { 
         type: Number
     },
 }, { versionKey: false, timestamps: false, collection: 'live-doctors' })

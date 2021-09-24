@@ -2,28 +2,68 @@ const express = require("express");
 const app = express();
 const dotenv = require('dotenv');
 dotenv.config();
+const cors = require('cors')
 const mongoose = require('mongoose');
+const Live = require('./models/live');
 const jwt_decode = require('jwt-decode');
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 const httpServer = createServer(app);
-const io = new Server(httpServer, { 
+const io = new Server(httpServer, {
+  path: "/go-live/",
   cors: {
     origin: "http://localhost:3000",
     methods: ["GET", "POST"]
   },
 });
 
-io.on("connection", (socket) => {
-  console.log("doctor connected!");
-  const decoded = jwt_decode(socket.handshake.query.AuthData);
-  console.log(decoded);
+app.use(cors())
 
-  //const transport = socket.conn.transport.name; // in most cases, "polling"
-  //console.log(transport)
-  socket.conn.on("upgrade", () => {
-    //const upgradedTransport = socket.conn.transport.name; // in most cases, "websocket"
-    //console.log(upgradedTransport)
+app.get('/getlivedoctors', async (req, res) => {
+  Live.find({}, (err, docs) => {
+    if (err) {
+      return res.status(404).json(err);
+    }
+    const total = docs.length
+    return res.status(200).json({ total, docs });
+  })
+});
+
+
+io.on("connection", (socket) => {
+  socket.on("connect", () => {
+    socket.sendBuffer = [];
+  });
+  
+  // console.log("user connected!");
+  
+  const decoded = jwt_decode(socket.handshake.query.AuthData)
+  // console.log(decoded);
+  Live.create({
+    auth: decoded.sub,
+    role: decoded.role,
+    docid: decoded.docid,
+    specialization: decoded.specialization,
+    charge: decoded.charge,
+    rating: decoded.rating
+  }, (err, docs) => {
+    if (err) {
+      console.log('Live create error: ' + err);
+    } else {
+      console.log("Doctor is Live");
+    }
+  });
+
+
+  socket.on('disconnect', () => {
+    //console.log('user disconnected');
+    Live.findOneAndDelete(decoded.sub, (err, docs) => { 
+      if (err) {
+        console.log('Live delete error: ' + err);
+      } else {
+        console.log("Doctor is Offline")
+      }
+    })
   });
 
 });
@@ -31,6 +71,7 @@ io.on("connection", (socket) => {
 httpServer.listen(process.env.PORT, () => {
   console.log("Server is running on PORT: ", process.env.PORT);
 });
+
 
 //connection to database
 mongoose.connect(process.env.MONGODB_URI, {
@@ -44,22 +85,4 @@ db.on('error', console.error.bind(console, "Error Connecting to MongoDB: "));
 
 db.once('open', () => {
   console.log("Connected to MongoDB")
-  
-  const messageCollection = db.collection('live-doctors');
-  const changeStream = messageCollection.watch();
-    
-  changeStream.on('change', (change) => {
-      console.log("Change Stream: " + change.operationType);
-      
-      if(change.operationType === 'insert') {
-          const doctor = change.fullDocument;
-          console.log("insert")
-          //socketio triggers give update to frontend
-
-      } else if(change.operationType === 'delete') {
-          const doctor = change.fullDocument;
-          console.log("insert")
-          //socketio triggers give update to backend
-      }
-  })
 })
