@@ -56,7 +56,7 @@ io.on("connection", (socket) => {
   socket.on('disconnect', () => {
     //console.log('user disconnected');
     try {
-      Live.findOneAndDelete(decoded.docid) 
+      Live.findOneAndDelete({ docid: decoded.docid }) 
       console.log("Doctor is Offline")
     } catch (e) {
       console.log(e)
