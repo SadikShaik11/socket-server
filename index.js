@@ -12,7 +12,7 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
   path: "/go-live/",
   cors: {
-    origin: "http://localhost:3000",
+    origin: "https://socket-client-one.vercel.app",
     methods: ["GET", "POST"]
   },
 });
