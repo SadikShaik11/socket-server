@@ -45,7 +45,8 @@ io.on("connection", (socket) => {
     docid: decoded.docid,
     specialization: decoded.specialization,
     charge: decoded.charge,
-    rating: decoded.rating
+    rating: decoded.rating,
+    name: decoded.name,
   }, (err, docs) => {
     if (err) {
       console.log('Live create error: ' + err);
