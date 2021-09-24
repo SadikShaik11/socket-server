@@ -13,7 +13,7 @@ const liveSchema = new Schema({
         type: Number
     },
     specialization: { 
-        type: String
+        type: Array
     },
     charge: { 
         type: String
